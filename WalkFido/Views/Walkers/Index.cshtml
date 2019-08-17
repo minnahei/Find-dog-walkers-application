@@ -1,0 +1,93 @@
+﻿@model List<WalkFido.Models.Walker>
+
+@using Microsoft.AspNetCore.Identity
+@using WalkFido.Data
+
+@inject UserManager<AppUser> _userManager
+@inject ApplicationDbContext _context
+
+
+
+@{
+    ViewData["Title"] = "Index";
+
+    AppUser user = await _userManager.FindByEmailAsync(User.Identity.Name);
+    
+}
+
+
+
+<body>
+    <div>
+        <form asp-action="Index">
+            <div class="form-group has-search">
+                <h2>Find dog walkers in your area</h2>
+                <div class="col-6">
+                    <div class="input-group">
+                        <input class="form-control border-secondary py-2" name="search" placeholder="Enter area">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="submit">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            </form>
+    </div>
+
+    @*<form asp-action="Index">
+        <input name="search" />
+        <button type="submit"></button>
+
+    </form>*@
+
+    <div class="row">
+        @foreach (Walker walker in Model)
+    {
+            foreach (Availability availability in walker.Availabilities)
+            {
+        <div class="col-md-6 col-lg-4 mt-5" style="width: 150px;">
+
+                <img class="card-img-top" src="https://www.sackettwaconia.com/wp-content/uploads/default-profile.png" alt="Card image">
+                <div class="card-body">
+                    <h4 class="card-title">Name: @walker.User.FirstName @walker.User.LastName</h4>
+                    <h4 class="card-text">Area: @walker.Area</h4>
+                    <h4 class="card-text">Date: @availability.Date</h4>
+                    <h4 class="card-text">Day: @availability.Day</h4>
+                    <h4 class="card-text">Time: @availability.Time</h4>
+
+
+                    @*@if (User.IsInRole("walker"))
+                     {
+
+                     }*@
+
+                @if (await _userManager.IsInRoleAsync(user,"Owner") && availability.Available == true)
+                 {
+                     <a asp-action="Book" asp-route-id="@availability.Id" class="btn btn-primary">Reserve!</a> 
+                 }
+                
+               @if (await _userManager.IsInRoleAsync(user,"Owner") && availability.Available == false)
+                 {
+                    <a class="btn btn-primary" disabled>Not available!</a>
+                 }
+
+
+
+                </div>
+            </div>
+            }
+            }
+        </div>
+
+
+</body>
+
+
+
+
+
+
+</div>
